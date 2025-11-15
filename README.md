@@ -198,11 +198,11 @@ For more information, check the [Themes documentation](docs/themes.md).
 
 - **How do I make the keybinds global?**
 
-    You can set the `global_hotkeys` property as `true` by editing your `settings.json` file.
+    You can set the `global_hotkeys` property as `true` by editing your `settings.json` file. See [Settings and Keybinds](docs/settings-keybinds.md) for more information.
 
     Wayland users experienced crashes when enabled `global_hotkeys`, so this settings is ignored for Wayland desktops.
 
-    See [Settings and Keybinds](docs/settings-keybinds.md) for more information and workarounds for Wayland.
+    As a workaround you can use [LibreSplitCtl](docs/libresplitctl.md) to be executed by your desktop environment when pressing certain shortcuts.
 
 - **Can I modify LibreSplit's appearance?**
 
