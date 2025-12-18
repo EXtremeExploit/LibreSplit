@@ -52,6 +52,10 @@ executable(
         '-DPREFIX="' + get_option('prefix') + '"',
         '-DDATADIR="' + get_option('datadir') + '"',
         '-Werror',
+        '-Wall',
+        '-Wbad-function-cast',
+        '-Wsign-compare',
+        '-Wpedantic',
     ],
     install: true,
 )
