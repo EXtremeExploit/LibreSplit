@@ -20,31 +20,22 @@
 #define LS_APP(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), LS_APP_TYPE, LSApp))
 
-typedef struct _LSApp LSApp;
-typedef struct _LSAppClass LSAppClass;
-
 #define LS_APP_WINDOW_TYPE (ls_app_window_get_type())
 #define LS_APP_WINDOW(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), LS_APP_WINDOW_TYPE, LSAppWindow))
 
-typedef struct _LSAppWindow LSAppWindow;
-typedef struct _LSAppWindowClass LSAppWindowClass;
+typedef struct LSApp {
+    GtkApplication parent;
+} LSApp;
 
-#define WINDOW_PAD (8)
-
-atomic_bool exit_requested = 0; /*!< Set to 1 when LibreSplit is exiting */
-
-static const unsigned char css_data[] = {
-#embed "main.css"
-};
-
-static const size_t css_data_len = sizeof(css_data);
+typedef struct LSAppClass {
+    GtkApplicationClass parent_class;
+} LSAppClass;
 
 /**
  * @brief Keybind A GTK Key bind
  */
-typedef struct
-{
+typedef struct Keybind {
     guint key; /*!< The key value */
     GdkModifierType mods; /*!< The modifiers used (shift, ctrl, ...) */
 } Keybind;
@@ -52,7 +43,7 @@ typedef struct
 /**
  * @brief The main LibreSplit application window
  */
-struct _LSAppWindow {
+typedef struct LSAppWindow {
     GtkApplicationWindow parent; /*!< The proper GTK base application*/
     char data_path[PATH_MAX]; /*!< The path to the libresplit user config directory */
     gboolean decorated; /*!< Defines whether LibreSplit is currently showing window decorations */
@@ -76,13 +67,24 @@ struct _LSAppWindow {
     Keybind keybind_skip_split; /*!< The "skip split" global keybind */
     Keybind keybind_toggle_decorations; /*!< The "toggle decorations" global keybind */
     Keybind keybind_toggle_win_on_top; /*!< The "always-on-top" global keybind */
-};
+} LSAppWindow;
 
-struct _LSAppWindowClass {
+typedef struct LSAppWindowClass {
     GtkApplicationWindowClass parent_class;
+} LSAppWindowClass;
+
+G_DEFINE_TYPE(LSApp, ls_app, GTK_TYPE_APPLICATION)
+G_DEFINE_TYPE(LSAppWindow, ls_app_window, GTK_TYPE_APPLICATION_WINDOW)
+
+#define WINDOW_PAD (8)
+
+atomic_bool exit_requested = 0; /*!< Set to 1 when LibreSplit is exiting */
+
+static const unsigned char css_data[] = {
+#embed "main.css"
 };
 
-G_DEFINE_TYPE(LSAppWindow, ls_app_window, GTK_TYPE_APPLICATION_WINDOW)
+static const size_t css_data_len = sizeof(css_data);
 
 /**
  * Parses a string representing a Keybind definition
@@ -894,16 +896,6 @@ static void ls_app_window_open(LSAppWindow* win, const char* file)
         ls_app_window_show_game(win);
     }
 }
-
-struct _LSApp {
-    GtkApplication parent;
-};
-
-struct _LSAppClass {
-    GtkApplicationClass parent_class;
-};
-
-G_DEFINE_TYPE(LSApp, ls_app, GTK_TYPE_APPLICATION)
 
 /**
  * Shows the "Open JSON Split File" dialog eventually using
