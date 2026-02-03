@@ -115,14 +115,14 @@ jobs:
                   path: LibreSplit-nightly-x86_64.AppImage
                   name: LibreSplit-${{ env.build_number }}-${{ env.git_short_sha }}-x86_64.AppImage
 
-
             - name: "Upload AppImage zsync"
               uses: actions/upload-artifact@v4
               with:
                   path: LibreSplit-nightly-x86_64.AppImage.zsync
                   name: LibreSplit-nightly-x86_64.AppImage.zsync
 
-    create-release:
+    create-nightly-release:
+        name: "Upload nightly release"
         needs: [build]
         runs-on: ubuntu-latest
         concurrency:
@@ -154,11 +154,6 @@ jobs:
                   | jq -r '.commit.author.name')
                   echo "COMMITTER_NAME=$COMMITTER" >> $GITHUB_ENV
 
-            - name: Download ghr
-              run: |
-                  wget -c https://github.com/tcnksm/ghr/releases/download/v0.17.0/ghr_v0.17.0_linux_amd64.tar.gz
-                  tar xfv ghr_v0.17.0_linux_amd64.tar.gz
-
             - name: Prepare artifacts
               run: |
                   mkdir -p artifacts-master
@@ -168,10 +163,10 @@ jobs:
                     dir=$(basename $f)
                     if [[ $dir == *-x86_64.AppImage ]]; then
                       echo "Processing $dir (x86_64 AppImage)"
-                      cp $dir/*.AppImage artifacts-master/
+                      cp $dir artifacts-master/
                     elif [[ $dir == *-x86_64.AppImage.zsync ]]; then
                       echo "Processing $dir (x86_64 AppImage zsync)"
-                      cp $dir/*.AppImage.zsync artifacts-master/
+                      cp $dir artifacts-master/
                     elif [[ $dir == *-standalone ]]; then
                       echo "Processing $dir (Standalone x86_64)"
                       (cd $dir && zip -r ../artifacts-master/$dir.zip *)
@@ -180,11 +175,10 @@ jobs:
                   echo "=== artifacts-master ==="
                   ls -al artifacts-master/
 
-            - name: "Install zsync"
-              uses: awalsh128/cache-apt-pkgs-action@latest
-              with:
-                  packages: zsync
-                  version: 1.0
+            - name: Download ghr
+              run: |
+                  wget -c https://github.com/tcnksm/ghr/releases/download/v0.17.0/ghr_v0.17.0_linux_amd64.tar.gz
+                  tar xfv ghr_v0.17.0_linux_amd64.tar.gz
 
             - name: Upload to master repository
               run: |
