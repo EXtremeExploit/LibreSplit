@@ -114,7 +114,7 @@ jobs:
             cancel-in-progress: false
         if: |
             github.ref == 'refs/heads/main' &&
-            github.repository == 'LibreSplit/LibreSplit'
+            github.repository == 'EXtremeExploit/LibreSplit'
         steps:
             - uses: actions/checkout@v6
               with:
