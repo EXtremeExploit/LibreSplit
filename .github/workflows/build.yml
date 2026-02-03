@@ -94,30 +94,32 @@ jobs:
             - name: "Download linuxdeploy"
               run: |
                   wget -O linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage
-                  chmod +x linuxdeploy-x86_64.AppImage
-                  # linuxdeploy plugin to produce AppImage with embedded update information
                   wget -O linuxdeploy-plugin-appimage-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/latest/download/linuxdeploy-plugin-appimage-x86_64.AppImage
+                  chmod +x linuxdeploy-x86_64.AppImage
                   chmod +x linuxdeploy-plugin-appimage-x86_64.AppImage
 
             - name: "Create AppImage"
               run: |
                   # Prefer using the plugin which can embed update information
-                  if [ -x ./linuxdeploy-plugin-appimage-x86_64.AppImage ]; then
-                    ./linuxdeploy-plugin-appimage-x86_64.AppImage --appdir AppDir --icon-file AppDir/libresplit.png --output appimage \
-                      --appimage-updateinfo "zsync|https://github.com/${{ github.repository_owner }}/LibreSplit/releases/download/nightly/LibreSplit-nightly-x86_64.AppImage.zsync"
-                  else
-                    ./linuxdeploy-x86_64.AppImage --appdir AppDir --desktop-file AppDir/libresplit.desktop --icon-file AppDir/libresplit.png --output appimage
-                  fi
-                  # rename to include nightly marker so it doesn't clash with stable releases
+
+                  LDAI_UPDATE_INFORMATION="gh-releases-zsync|${{ github.repository_owner }}|LibreSplit|nightly|LibreSplit-*x86_64.AppImage.zsync" \
+                  ./linuxdeploy-x86_64.AppImage --appdir AppDir --desktop-file AppDir/libresplit.desktop --icon-file AppDir/libresplit.png --output appimage
                   if [ -f LibreSplit-x86_64.AppImage ]; then
                     mv LibreSplit-x86_64.AppImage LibreSplit-nightly-x86_64.AppImage
+                    mv LibreSplit-x86_64.AppImage.zsync LibreSplit-nightly-x86_64.AppImage.zsync
                   fi
 
             - name: "Upload AppImage"
               uses: actions/upload-artifact@v4
               with:
-                  path: LibreSplit-x86_64.AppImage
+                  path: LibreSplit-nightly-x86_64.AppImage
                   name: LibreSplit-${{ env.build_number }}-${{ env.git_short_sha }}-x86_64.AppImage
+
+
+            - name: "Upload AppImage zsync"
+              uses: actions/upload-artifact@v4
+              with:
+                  path: LibreSplit-nightly-x86_64.AppImage.zsync
 
     create-release:
         needs: [build]
@@ -166,6 +168,7 @@ jobs:
                     if [[ $dir == *-x86_64.AppImage ]]; then
                       echo "Processing $dir (x86_64 AppImage)"
                       cp $dir/*.AppImage artifacts-master/
+                      cp $dir/*.AppImage.zsync artifacts-master/
                     elif [[ $dir == *-standalone ]]; then
                       echo "Processing $dir (Standalone x86_64)"
                       (cd $dir && zip -r ../artifacts-master/$dir.zip *)
@@ -179,31 +182,6 @@ jobs:
               with:
                   packages: zsync
                   version: 1.0
-
-            - name: Create zsync and update info
-              run: |
-                  cd artifacts-master
-                  for f in *.AppImage; do
-                    if [ -f "$f" ]; then
-                      echo "Generating zsync for $f"
-                      # create .zsync (zsyncmake outputs <file>.zsync)
-                      zsyncmake "$f" || true
-                      bn=$(basename "$f")
-                      # Write a simple update info file pointing to the nightly release assets
-                      echo "zsync|https://github.com/${{ github.repository_owner }}/LibreSplit/releases/download/nightly/$bn.zsync" > "$bn.updateinfo"
-                    fi
-                  done
-                  # Create an aggregate update metadata file for convenience
-                  echo "appimage_update:" > update.yml
-                  for z in *.updateinfo; do
-                    if [ -f "$z" ]; then
-                      name=${z%.updateinfo}
-                      val=$(cat "$z")
-                      echo "  - name: $name" >> update.yml
-                      echo "    update: '$val'" >> update.yml
-                    fi
-                  done
-                  cd -
 
             - name: Upload to master repository
               run: |
