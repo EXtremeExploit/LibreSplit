@@ -155,7 +155,7 @@ jobs:
                       cp $dir/*.AppImage artifacts-master/
                     elif [[ $dir == *-standalone ]]; then
                       echo "Processing $dir (Standalone x86_64)"
-                      (cd $dir && zip -r ../artifacts-master/$dir-standalone.zip *)
+                      (cd $dir && zip -r ../artifacts-master/$dir.zip *)
                     fi
                   done
                   echo "=== artifacts-master ==="
