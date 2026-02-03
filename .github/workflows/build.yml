@@ -169,6 +169,8 @@ jobs:
                     if [[ $dir == *-x86_64.AppImage ]]; then
                       echo "Processing $dir (x86_64 AppImage)"
                       cp $dir/*.AppImage artifacts-master/
+                    elif [[ $dir == *-x86_64.AppImage.zsync ]]; then
+                      echo "Processing $dir (x86_64 AppImage zsync)"
                       cp $dir/*.AppImage.zsync artifacts-master/
                     elif [[ $dir == *-standalone ]]; then
                       echo "Processing $dir (Standalone x86_64)"
