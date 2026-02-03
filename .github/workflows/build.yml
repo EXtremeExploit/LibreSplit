@@ -174,7 +174,7 @@ jobs:
                   echo "=== artifacts-master ==="
                   ls -al artifacts-master/
 
-            - name: "Install and cache C dependencies"
+            - name: "Install zsync"
               uses: awalsh128/cache-apt-pkgs-action@latest
               with:
                   packages: zsync
