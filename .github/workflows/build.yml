@@ -147,6 +147,7 @@ jobs:
               run: |
                   mkdir -p artifacts-master
                   files=$(find . -maxdepth 1 -type d -name "LibreSplit-*")
+                  printf "Found files:\n$files\n"
                   for f in $files; do
                     dir=$(basename $f)
                     if [[ $dir == *-ubuntu-latest-appimage ]]; then
