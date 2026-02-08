@@ -5,21 +5,34 @@
 #include "src/keybinds/keybinds.h"
 #include "src/opts.h"
 #include "src/timer.h"
+
+#include <glib-object.h>
 #include <gtk/gtk.h>
 
 #define WINDOW_PAD (8)
 
-typedef struct _LSAppWindowClass {
+G_DECLARE_FINAL_TYPE(LSApp, ls_app, LS, APP, GtkApplication)
+#define LS_APP_TYPE (ls_app_get_type())
+#define LS_APP(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), LS_APP_TYPE, LSApp))
+
+G_DECLARE_FINAL_TYPE(LSAppWindow, ls_app_window, LS, APP_WINDOW, GtkApplicationWindow)
+
+#define LS_APP_WINDOW_TYPE (ls_app_window_get_type())
+#define LS_APP_WINDOW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), LS_APP_WINDOW_TYPE, LSAppWindow))
+
+struct _LSAppWindowClass {
     GtkApplicationWindowClass parent_class;
-} LSAppWindowClass;
+};
 
-typedef struct LSApp {
+struct _LSApp {
     GtkApplication parent;
-} LSApp;
+};
 
-typedef struct _LSAppClass {
+struct _LSAppClass {
     GtkApplicationClass parent_class;
-} LSAppClass;
+};
 
 /**
  * @brief The main LibreSplit application window
@@ -46,3 +59,14 @@ void toggle_decorations(LSAppWindow* win);
 void toggle_win_on_top(LSAppWindow* win);
 
 gboolean ls_app_window_resize(GtkWidget* widget, GdkEvent* event, gpointer data);
+
+LSAppWindow* ls_app_window_new(LSApp* app);
+void ls_app_activate(GApplication* app);
+void ls_app_open(GApplication* app, GFile** files, gint n_files, const gchar* hint);
+LSApp* ls_app_new(void);
+
+void ls_app_window_open(LSAppWindow* win, const char* file);
+
+gboolean ls_app_window_step(gpointer data);
+void ls_app_window_destroy(GtkWidget* widget, gpointer data);
+gboolean ls_app_window_draw(gpointer data);
