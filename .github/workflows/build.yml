@@ -108,6 +108,8 @@ jobs:
         name: "Upload nightly release"
         needs: [build]
         runs-on: ubuntu-latest
+        permissions:
+            contents: write 
         concurrency:
             group: create-release
             cancel-in-progress: false
